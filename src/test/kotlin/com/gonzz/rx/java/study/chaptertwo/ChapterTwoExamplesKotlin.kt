@@ -35,4 +35,17 @@ class ChapterTwoExamplesKotlin {
             println("Observer 2: $it")
         }
     }
+
+    @Test
+    // The fromCallable() method is useful when the chunk
+    // of code that is going to be emitted has high probabilities
+    // of throwing an exception. In that case, Observable will
+    // emit (throw) the error, instead of being thrown ouside the observable
+    fun creatingObservableFromCallable() {
+
+        //Observable.just(1 / 0) // Here, the exception will be thrown OUTSIDE the observable
+        Observable.fromCallable { 1 / 0 } // Here, the exception will be thrown INSIDE the observable, and emitted by it
+            .subscribe({ i: Int -> println("Received: $i") },
+                { e: Throwable -> println("Error Captures: $e") })
+    }
 }

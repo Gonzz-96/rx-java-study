@@ -12,7 +12,6 @@ import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4.class)
@@ -40,7 +39,7 @@ public class ChapterTwoExamples {
         });
 
         source.subscribe(s -> System.out.println("RECEIVED: " + s));
-        printSepator();
+        printSeparator();
     }
 
     @Test
@@ -62,7 +61,7 @@ public class ChapterTwoExamples {
                 .filter(i -> i >= 5)
                 .subscribe(s -> System.out.println("RECEIVED: " + s));
 
-        printSepator();
+        printSeparator();
     }
 
     @Test
@@ -73,7 +72,7 @@ public class ChapterTwoExamples {
         source.map(String::length)
                 .filter(i -> i >= 5)
                 .subscribe(s -> System.out.println("RECEIVED: " + s));
-        printSepator();
+        printSeparator();
     }
 
     @Test
@@ -112,7 +111,7 @@ public class ChapterTwoExamples {
         };
 
         source.map(String::length).subscribe(myObserver);
-        printSepator();
+        printSeparator();
     }
 
     @Test
@@ -127,7 +126,7 @@ public class ChapterTwoExamples {
 
         source.map(String::length).filter(i -> i >= 5)
                 .subscribe(onNext, onError, onComplete);
-        printSepator();
+        printSeparator();
     }
 
     @Test
@@ -166,7 +165,7 @@ public class ChapterTwoExamples {
         Observable.range(1, 10)
                 .subscribe(s -> System.out.println("RECEIVED: " + s));
 
-        printSepator();
+        printSeparator();
     }
 
     @Test
@@ -210,7 +209,7 @@ public class ChapterTwoExamples {
                 Throwable::printStackTrace,
                 () -> System.out.println("Done!"));
 
-        printSepator();
+        printSeparator();
     }
 
     @Test
@@ -256,7 +255,21 @@ public class ChapterTwoExamples {
         source.subscribe(i -> System.out.println("Observer 2: " + i));
     }
 
-    private void printSepator() {
+    @Test
+    // The fromCallable() method is useful when the chunk
+    // of code that is going to be emitted has high probabilities
+    // of throwing an exception. In that case, Observable will
+    // emit (throw) the error, instead of being thrown ouside the observable
+    public void creatingObservableFromCallable() {
+
+        //Observable.just(1 / 0) // Here, the exception will be thrown OUTSIDE the observable
+        Observable.fromCallable(() -> 1 / 0) // Here, the exception will be thrown INSIDE the observable, and emitted by it
+                .subscribe(i -> System.out.println("Received: " + i),
+                        e -> System.out.println("Error Captures: " + e));
+
+    }
+
+    private void printSeparator() {
         System.out.println("\n**********************\n");
     }
 
