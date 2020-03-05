@@ -1,5 +1,6 @@
 package com.gonzz.rx.java.study.chaptertwo
 
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import org.junit.Test
@@ -59,5 +60,29 @@ class ChapterTwoExamplesKotlin {
         Single.just("Hello")
             .map(String::length)
             .subscribe(::println, Throwable::printStackTrace)
+    }
+
+    @Test
+    // Maybe will emit 0 or 1 values.
+    // In both cases, onComplete() is called.
+    // In the case of 1 value, onSucces(T value) is called
+    fun `creating Maybe`() {
+        // Has emission
+        // Has emission
+        val presentSource = Maybe.just(100)
+
+        presentSource.subscribe(
+            { s: Int -> println("Process 1 received: $s") },
+            { obj: Throwable -> obj.printStackTrace() }
+        ) { println("Process 1 done!") }
+
+        // No emission
+        // No emission
+        val emptySource = Maybe.empty<Int>()
+
+        emptySource.subscribe(
+            { s: Int -> println("Process 2 received: $s") },
+            { obj: Throwable -> obj.printStackTrace() },
+            { println("Process 2 done!") })
     }
 }

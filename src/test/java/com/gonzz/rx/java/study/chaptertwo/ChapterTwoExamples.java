@@ -1,5 +1,6 @@
 package com.gonzz.rx.java.study.chaptertwo;
 
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
@@ -280,6 +281,26 @@ public class ChapterTwoExamples {
                 .map(String::length)
                 .subscribe(System.out::println,
                         Throwable::printStackTrace);
+    }
+
+    @Test
+    // Maybe will emit 0 or 1 values.
+    // In both cases, onComplete() is called.
+    // In the case of 1 value, onSucces(T value) is called
+    public void creatingMaybe() {
+        // Has emission
+        Maybe<Integer> presentSource = Maybe.just(100);
+
+        presentSource.subscribe(s -> System.out.println("Process 1 received: " + s),
+            Throwable::printStackTrace,
+            () -> System.out.println("Process 1 done!"));
+
+        // No emission
+        Maybe<Integer> emptySource = Maybe.empty();
+
+        emptySource.subscribe(s -> System.out.println("Process 2 received: " + s),
+            Throwable::printStackTrace,
+            () -> System.out.println("Process 2 done!"));
     }
 
     private void printSeparator() {
