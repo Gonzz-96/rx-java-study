@@ -12,10 +12,14 @@ import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4.class)
 public class ChapterTwoExamples {
+
+    private static int start = 1;
+    private static int count = 5;
 
     @Test
     public void creatingObservbaleUsingCreate() {
@@ -233,6 +237,25 @@ public class ChapterTwoExamples {
             );
 
     }
+
+    @Test
+    // if we want to create a stateful observable, the arguments
+    // passed to the observable will remain the same, even when,
+    // those parameters have changed.
+    // The defer() method will create an observable from a lambda
+    // passed as an argument. This allows us to create a stateful
+    // observable with variable that may change.
+    public void creatingADeferObservable() {
+        Observable<Integer> source = Observable.defer(() -> Observable.range(start, count));
+
+        source.subscribe(i -> System.out.println("Observer 1: " + i));
+
+        // Modify count
+        count = 10;
+
+        source.subscribe(i -> System.out.println("Observer 2: " + i));
+    }
+
     private void printSepator() {
         System.out.println("\n**********************\n");
     }
