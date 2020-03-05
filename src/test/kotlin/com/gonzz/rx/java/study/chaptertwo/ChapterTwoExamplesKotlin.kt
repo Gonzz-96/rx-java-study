@@ -1,6 +1,7 @@
 package com.gonzz.rx.java.study.chaptertwo
 
 import io.reactivex.Observable
+import io.reactivex.Single
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -47,5 +48,16 @@ class ChapterTwoExamplesKotlin {
         Observable.fromCallable { 1 / 0 } // Here, the exception will be thrown INSIDE the observable, and emitted by it
             .subscribe({ i: Int -> println("Received: $i") },
                 { e: Throwable -> println("Error Captures: $e") })
+    }
+
+    @Test
+    // The single is an observable that will only emit one item.
+    // onSuccess(T value) = onNext(T value) + onComplete()
+    // The first() operator of Observable will return a Single
+    fun `creating Single`() {
+
+        Single.just("Hello")
+            .map(String::length)
+            .subscribe(::println, Throwable::printStackTrace)
     }
 }

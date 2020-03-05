@@ -2,6 +2,7 @@ package com.gonzz.rx.java.study.chaptertwo;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -267,6 +268,18 @@ public class ChapterTwoExamples {
                 .subscribe(i -> System.out.println("Received: " + i),
                         e -> System.out.println("Error Captures: " + e));
 
+    }
+
+    @Test
+    // The single is an observable that will only emit one item.
+    // onSuccess(T value) = onNext(T value) + onComplete()
+    // The first() operator of Observable will return a Single
+    public void creatingSingle() {
+
+        Single.just("Hello")
+                .map(String::length)
+                .subscribe(System.out::println,
+                        Throwable::printStackTrace);
     }
 
     private void printSeparator() {
