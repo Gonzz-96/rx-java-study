@@ -12,6 +12,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4.class)
 public class ChapterTwoExamples {
@@ -154,9 +155,56 @@ public class ChapterTwoExamples {
         source.connect();
     }
 
+    @Test
+    // There is an equivalent method used to emit larger numbers:
+    //      Observable.rangeLong()
+    public void observableRange() {
+        Observable.range(1, 10)
+                .subscribe(s -> System.out.println("RECEIVED: " + s));
 
+        printSepator();
+    }
+
+    @Test
+    public void connectableObservableAreCold() {
+        Observable<Long> seconds = Observable.interval(1,
+                TimeUnit.SECONDS);
+        //Observer 1
+        seconds.subscribe(l -> System.out.println("Observer 1: " + l));
+        //sleep 5 seconds
+        sleep(5000);
+        //Observer 2
+        seconds.subscribe(l -> System.out.println("Observer 2: " + l));
+        //sleep 5 seconds
+        sleep(5000);
+    }
+
+    @Test
+    public void makingColdObservableHotObservables() {
+
+        ConnectableObservable<Long> seconds =
+                Observable.interval(1, TimeUnit.SECONDS).publish();
+        //observer 1
+        seconds.subscribe(l -> System.out.println("Observer 1: " + l));
+        seconds.connect();
+        //sleep 5 seconds
+        sleep(5000);
+        //observer 2
+        seconds.subscribe(l -> System.out.println("Observer 2: " + l));
+
+        //sleep 5 seconds
+        sleep(5000);
+    }
 
     private void printSepator() {
         System.out.println("\n**********************\n");
+    }
+
+    public static void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
