@@ -1,9 +1,6 @@
 package com.gonzz.rx.java.study.chaptertwo;
 
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.Single;
+import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -303,6 +300,15 @@ public class ChapterTwoExamples {
             () -> System.out.println("Process 2 done!"));
     }
 
+    @Test
+    // Completable are generally tied to an action that
+    // is going to be executed
+    public void creatingCompletable() {
+
+        Completable.fromRunnable(() -> runProcess())
+            .subscribe(() -> System.out.println("Done!"));
+    }
+
     private void printSeparator() {
         System.out.println("\n**********************\n");
     }
@@ -314,4 +320,6 @@ public class ChapterTwoExamples {
             e.printStackTrace();
         }
     }
+
+    private void runProcess() { }
 }

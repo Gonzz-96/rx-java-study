@@ -1,5 +1,6 @@
 package com.gonzz.rx.java.study.chaptertwo
 
+import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -85,4 +86,14 @@ class ChapterTwoExamplesKotlin {
             { obj: Throwable -> obj.printStackTrace() },
             { println("Process 2 done!") })
     }
+
+    @Test
+    // Completable are generally tied to an action that
+    // is going to be executed
+    fun creatingCompletable() {
+        Completable.fromRunnable { runProcess() }
+            .subscribe { println("Done!") }
+    }
+
+    private fun runProcess() { }
 }
