@@ -196,6 +196,43 @@ public class ChapterTwoExamples {
         sleep(5000);
     }
 
+    @Test
+    public void creatingAnEmptyObservable() {
+        // The empty observable will only call the 'onComplete' method
+        // No value is emitted
+        // Empty observable are the RxJava's concept of null
+        Observable<String> empty = Observable.empty();
+        empty.subscribe(System.out::println,
+                Throwable::printStackTrace,
+                () -> System.out.println("Done!"));
+
+        printSepator();
+    }
+
+    @Test
+    public void creatingA_NeverObservable() {
+        // This will emit no value, like empty(), but
+        // this method will never call onComplete() method
+        // This observable is used for testing.
+        Observable<String> empty = Observable.never();
+        empty.subscribe(System.out::println,
+                Throwable::printStackTrace,
+                () -> System.out.println("Done!"));
+        sleep(5000);
+    }
+
+    @Test
+    public void creatingAnErrorObservable() {
+        // This observable will emit no value, nor
+        // call onComplete() method. Instead, it only calls
+        // the onError() method
+        Observable.error(new Exception("Crash and explodes!"))
+            .subscribe(i -> System.out.println("RECEIVED: " + i),
+                    Throwable::printStackTrace,
+                    () -> System.out.println("Done!")
+            );
+
+    }
     private void printSepator() {
         System.out.println("\n**********************\n");
     }
