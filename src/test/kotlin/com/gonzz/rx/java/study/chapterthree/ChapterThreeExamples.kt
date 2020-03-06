@@ -1,11 +1,11 @@
 package com.gonzz.rx.java.study.chapterthree
 
 import io.reactivex.Observable
-import io.reactivex.functions.Predicate
-import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
 @RunWith(JUnit4::class)
@@ -125,4 +125,71 @@ class ChapterThreeExamples {
             .elementAt(3L) // Returns a Maybe
             .subscribe { println("Received: $it") }
     }
+
+    // TRANSFORMING OPERATORS
+
+    @Test
+    // Straightforward for an explanation
+    fun `map operator`() {
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("M/d/yyyy")
+
+        Observable.just("1/3/2016", "5/9/2016", "10/12/2016")
+            .map { s -> LocalDate.parse(s, dateTimeFormatter) }
+            .subscribe { println("RECEIVED: $it") }
+    }
+
+    @Test
+    // This will cast every object in the stream
+    // to a certain class
+    fun `cast operator`() {
+        commonObservable
+            .cast(Any::class.java)
+            .subscribe { println("${it.javaClass}") }
+    }
+
+    @Test
+    // Straightforward for explanation
+    fun `startWith operator`() {
+        Observable.just("Coffee", "Tea", "Espresso", "Latte")
+            //.startWith("----------------")
+            //.startWith("COFFEE SHOP MENU")
+            .startWithArray("COFFEE SHOP MENU", "----------------")
+            .subscribe(::println)
+    }
+
+    @Test
+    // This operator will send the received value
+    // as a default in case the observable is empty.
+    fun `defaultIfEmpty operator`() {
+        commonObservable.filter { s -> s.startsWith("Z") }
+            .defaultIfEmpty("None")
+            .subscribe { x -> println(x) }
+    }
+
+    @Test
+    // This operator will take a "backup" observable.
+    // If the source observable is empty, the received
+    // observable will push its values.
+    fun `switchIfEmpty operator`() {
+        commonObservable
+            .filter { it.startsWith("Z") }
+            .switchIfEmpty(Observable.just("Zeta", "Eta", "Theta"))
+            .subscribe { println("Received: $it") }
+    }
+
+    @Test
+    // The operator will sort any kind of elements that
+    // implement the Comparable<T> interface
+    // A comparator can be provided as an argument
+    // Also, a lambda can be provided as comparator
+    fun `sorted operator`() {
+        Observable
+            .just(6, 2, 5, 7, 1, 4, 9, 8, 3)
+            .sorted(
+                // Comparator.reverseOrder()
+            )
+            .subscribe(::println)
+    }
+
+
 }
