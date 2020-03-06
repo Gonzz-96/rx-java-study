@@ -4,12 +4,18 @@ import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.observers.ResourceObserver
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.TimeUnit
 
 @RunWith(JUnit4::class)
 class ChapterTwoExamplesKotlin {
+
+    private val disposables = CompositeDisposable()
 
     @Test
     // if we want to create a stateful observable, the arguments
@@ -93,6 +99,86 @@ class ChapterTwoExamplesKotlin {
     fun creatingCompletable() {
         Completable.fromRunnable { runProcess() }
             .subscribe { println("Done!") }
+    }
+
+    @Test
+    fun disposingSubscriptions() {
+        val seconds = Observable.interval(1, TimeUnit.SECONDS)
+        val disposable =
+            seconds.subscribe { l: Long -> println("Received: $l") }
+        // sleep 5 seconds
+        Thread.sleep(5000L)
+
+        // dispose and stop emissiones
+        disposable.dispose()
+
+        // sleep another 5 seconds
+        Thread.sleep(5000L)
+    }
+
+    @Test
+    fun usingResourceObserver() {
+        val source = Observable.interval(1, TimeUnit.SECONDS)
+        val myObserver: ResourceObserver<Long> = object : ResourceObserver<Long>() {
+            override fun onNext(value: Long) {
+                println(value)
+            }
+
+            override fun onError(e: Throwable) {
+                e.printStackTrace()
+            }
+
+            override fun onComplete() {
+                println("Done!")
+            }
+        }
+        val disposable: Disposable = source.subscribeWith(myObserver)
+    }
+
+    @Test
+    fun usingCompositeDisposable() {
+        val seconds = Observable.interval(1, TimeUnit.SECONDS)
+        //subscribe and capture disposables
+        val disposable1 = seconds.subscribe { l: Long ->
+            println(
+                "Observer 1: " +
+                        l
+            )
+        }
+        val disposable2 = seconds.subscribe { l: Long ->
+            println(
+                "Observer 2: " +
+                        l
+            )
+        }
+        //put both disposables into CompositeDisposable
+        disposables.addAll(disposable1, disposable2)
+        //sleep 5 seconds
+        Thread.sleep(5000)
+        //dispose all disposables
+        disposables.dispose()
+        //sleep 5 seconds to prove
+        //there are no more emissions
+        Thread.sleep(5000)
+    }
+
+
+    @Test
+    fun `handling Disposal with Observable create`() {
+
+        Observable.create<Int> { observableEmitter ->
+            try {
+                for (i in 0 until 1000) {
+                    while (!observableEmitter.isDisposed) {
+                        observableEmitter.onNext(i)
+                    }
+                    if (observableEmitter.isDisposed) return@create
+                }
+                observableEmitter.onComplete()
+            } catch (e: Throwable) {
+                observableEmitter.onError(e)
+            }
+        }
     }
 
     private fun runProcess() { }

@@ -1,10 +1,12 @@
 package com.gonzz.rx.java.study.chaptertwo;
 
 import io.reactivex.*;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.observables.ConnectableObservable;
+import io.reactivex.observers.ResourceObserver;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -15,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4.class)
 public class ChapterTwoExamples {
+
+    private static final CompositeDisposable disposables = new CompositeDisposable();
 
     private static int start = 1;
     private static int count = 5;
@@ -307,6 +311,75 @@ public class ChapterTwoExamples {
 
         Completable.fromRunnable(() -> runProcess())
             .subscribe(() -> System.out.println("Done!"));
+    }
+
+    @Test
+    // The dispose() method will terminate the emission of values
+    // from the observable to the observer in order to free resources.
+    public void disposingSubscriptions() {
+
+        Observable<Long> seconds =
+                Observable.interval(1, TimeUnit.SECONDS);
+
+        Disposable disposable =
+                seconds.subscribe(l -> System.out.println("Received: " + l));
+
+        // sleep 5 seconds
+        sleep(5000);
+
+        // dispose and stop emissiones
+        disposable.dispose();
+
+        // sleep another 5 seconds
+        sleep(5000);
+    }
+
+    @Test
+    public void usingResourceObserver() {
+
+        Observable<Long> source =
+                Observable.interval(1, TimeUnit.SECONDS);
+
+        ResourceObserver<Long> myObserver = new ResourceObserver<Long>() {
+            @Override
+            public void onNext(Long value) {
+                System.out.println(value);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+                System.out.println("Done!");
+            }
+        };
+
+        Disposable disposable = source.subscribeWith(myObserver);
+    }
+
+    @Test
+    public void usingCompositeDisposable() {
+        Observable<Long> seconds =
+                Observable.interval(1, TimeUnit.SECONDS);
+        //subscribe and capture disposables
+        Disposable disposable1 =
+                seconds.subscribe(l -> System.out.println("Observer 1: " +
+                        l));
+        Disposable disposable2 =
+                seconds.subscribe(l -> System.out.println("Observer 2: " +
+                        l));
+        //put both disposables into CompositeDisposable
+        disposables.addAll(disposable1, disposable2);
+        //sleep 5 seconds
+        sleep(5000);
+        //dispose all disposables
+        disposables.dispose();
+        //sleep 5 seconds to prove
+        //there are no more emissions
+        sleep(5000);
     }
 
     private void printSeparator() {
