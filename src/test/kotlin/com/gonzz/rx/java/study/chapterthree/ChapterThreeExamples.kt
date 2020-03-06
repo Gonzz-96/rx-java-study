@@ -77,6 +77,7 @@ class ChapterThreeExamples {
     // takes an observable as argument. It will be
     // taking emissions UNTIL the received observable
     // pushes a value
+    // skipUntil() is the analogue of takeUntil()
     fun `take until operator`() {
 
         val source = Observable.create<String> {
@@ -102,6 +103,26 @@ class ChapterThreeExamples {
         commonObservable
             .map(String::length)
             .distinct()
+            .subscribe { println("Received: $it") }
+    }
+
+    @Test
+    // This will ignore equal and consecutive emissions
+    fun `distinct until changed`() {
+        Observable.just(1, 1, 1, 2, 2, 3, 3, 2, 1, 1)
+            .distinctUntilChanged()
+            .subscribe { println("Received: $it") }
+
+        commonObservable
+            .distinctUntilChanged(String::length)
+            .subscribe { println("Received: $it") }
+    }
+
+    @Test
+    // Straightforward for an explanation
+    fun `elementAt  operator`() {
+        commonObservable
+            .elementAt(3L) // Returns a Maybe
             .subscribe { println("Received: $it") }
     }
 }
