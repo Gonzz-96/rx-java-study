@@ -13,7 +13,9 @@ class ChapterThreeExamples {
 
     private val commonObservable = Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
 
+    // *********************************
     // SUPPRESS OPERATORS
+    // *********************************
 
     @Test
     // Straightforward for an explanation
@@ -126,7 +128,9 @@ class ChapterThreeExamples {
             .subscribe { println("Received: $it") }
     }
 
+    // *********************************
     // TRANSFORMING OPERATORS
+    // *********************************
 
     @Test
     // Straightforward for an explanation
