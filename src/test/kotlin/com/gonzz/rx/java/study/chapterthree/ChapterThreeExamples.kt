@@ -191,5 +191,36 @@ class ChapterThreeExamples {
             .subscribe(::println)
     }
 
+    @Test
+    // This operator will hold the emissions and delay each one
+    // for specified time period. It can receive an observable
+    // and push emissions everytime that observables pushes
+    fun `delay operator`() {
+        commonObservable.delay(3, TimeUnit.SECONDS)
+            .subscribe { println("Received: $it") }
 
+        Thread.sleep(5_000L)
+    }
+
+    @Test
+    // This operator will repeat the whole stream
+    // until the method onComplete() is called
+    // the given number of times. If no argument is passed,
+    // it will repeat forever. Another operator is repeatUntil()
+    // that receives a boolean lambda and will repeat until it;s true
+    fun `repeat operator`() {
+        commonObservable
+            .repeat(3)
+            .subscribe { println("Received: $it") }
+    }
+
+    @Test
+    // This will receive a lambda that will receive
+    // and accumulator and the next value in the stream.
+    // It can receive an initial value
+    fun `scan operator`() {
+        Observable.just(5, 3, 7, 10, 2, 14)
+            .scan { accumulator, next -> accumulator + next}
+            .subscribe(::println)
+    }
 }
