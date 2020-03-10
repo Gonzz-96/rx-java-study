@@ -227,4 +227,80 @@ class ChapterThreeExamples {
             .scan { accumulator, next -> accumulator + next}
             .subscribe(::println)
     }
+
+    // *********************************
+    // Reducing operators
+    // *********************************
+
+    // These operators typically return a Single
+    // The are typically finite
+
+    @Test
+    // Straightforward
+    fun `count operator`() {
+        commonObservable
+            .count()
+            .subscribe { i ->
+                println("Received: $i")
+            }
+    }
+
+    @Test
+    // This operator is almost like scan()
+    // with the difference that it only emits
+    // the final accumulation, with no intermediate values
+    fun `reduce operator`() {
+        val source = Observable.just(5, 3, 7, 10, 2, 14)
+
+        source
+            .reduce { accumulator, next -> accumulator + next }
+            .subscribe { println("Received: $it") }
+
+        source
+            .reduce("") { accumulator, next ->
+                (if (accumulator == "") "" else ",").let {
+                    "$accumulator$it$next"
+                }
+            }
+            .subscribe { final ->
+                println("Received: $final")
+            }
+    }
+
+    @Test
+    // This will return true if all of the emisisons
+    // satisfy the given predicate. Returns false otherwise.
+    // If the observable is empty, it will return true.
+    // It's a lazy operator: if there is a emission that
+    // doesn't satisfy the predicate, the rest of the values are rejected
+    fun `all operator`() {
+        Observable.just(5, 3, 7, 11, 2, 14)
+            .all { it < 10 }
+            .subscribe { result -> println("Received: $result") }
+
+        Observable.just(5, 3, 7, 9, 2, 1)
+            .all { it < 10 }
+            .subscribe { result -> println("Received: $result") }
+    }
+
+    @Test
+    // This operator will return true if at least
+    // one of the elements of the stream satisfies
+    // the given predicate. It's lazy
+    // If any has no arguments, it will emit false
+    fun `any operator`() {
+        Observable.just("2016-01-01", "2016-05-02", "2016-09-12", "2016-04-03")
+            .map(LocalDate::parse)
+            .any { localDate -> localDate.monthValue >= 6 }
+            .subscribe { result -> println("Received: $result") }
+    }
+
+    @Test
+    // Straightforward
+    // It uses: hashCode() / equals()
+    fun `contains operator`() {
+        Observable.range(1, 10000)
+            .contains(9563)
+            .subscribe { s -> println("Received: $s") }
+    }
 }
