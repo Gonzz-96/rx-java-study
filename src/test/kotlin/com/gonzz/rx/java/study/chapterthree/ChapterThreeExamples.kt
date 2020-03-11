@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit
 class ChapterThreeExamples {
 
     private val commonObservable = Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+    private val numberObservable = Observable.just(5, 2, 4, 0, 3, 2, 8)
 
     // *********************************
     // SUPPRESS OPERATORS
@@ -361,5 +362,53 @@ class ChapterThreeExamples {
                 container.add(element)
             }
             .subscribe { map -> println("Received: $map") }
+    }
+
+    // ************************************
+    // Error recovery operators
+    // ************************************
+
+    @Test
+    // When a exception occurs, this operator will emit
+    // the Given value
+    // The position of the operators matters.
+    // If the recovery operator is put  before the map
+    // operator, the error won't be caught
+    // Important!!!  To intercept the emitted error, it must be downstream from where the error occurred.
+    // When an error occurs, the stream stops!!!!
+    fun `onErrorReturnItem operator`() {
+        numberObservable
+            .map { 10 / it }
+            .onErrorReturn { e ->
+                println(e.message)
+                -1
+            }
+            .subscribe { println("Received: $it") }
+    }
+
+    @Test
+    // This operator will receive another observable
+    // The source observable will subscribe to that
+    // observable and emit its values
+    // An Observable.empty() can quietly stop emissions
+    fun `onErrorResumeNext operator`() {
+        numberObservable
+            .map { 10 / it }
+            //.onErrorResumeNext(Observable.just(-1).repeat(3))
+            .onErrorResumeNext(Observable.empty())
+            .subscribe { println("Received: $it") }
+    }
+
+    @Test
+    // The retry() operator will re-subscribe
+    // to the observable. It has many overloads.
+    // If no parameters are provided, it will
+    // resubscribe ad infinitum
+    // There are some variants: retryUntil(), retryWhen()
+    fun `retry operator`() {
+        numberObservable
+            .map { 10 / it }
+            .retry(2)
+            .subscribe { println("Received: $it") }
     }
 }
