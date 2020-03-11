@@ -411,4 +411,48 @@ class ChapterThreeExamples {
             .retry(2)
             .subscribe { println("Received: $it") }
     }
+
+    // *********************************
+    // Action operators
+    // *********************************
+
+    @Test
+    // These operators are like mini observers in the
+    // observable chain. They do not transform, it's
+    // like a bypass
+    fun `doOn operators - doOnNext, doOnComplete, doOnError`() {
+        commonObservable
+            //.doAfterNext { println("Processing: $it") } // the action is perfomed AFTER onNext()
+            .doOnNext { println("Processing: $it") }
+            .doOnComplete { println("Source is done emitting!") }
+            .map(String::length)
+            .subscribe { println("Received: $it") }
+
+        numberObservable
+            .doOnError { println("Source failed!") }
+            .map { i: Int -> 10 / i }
+            .doOnError { println("Division failed!") }
+            //.doOnEach { } // it contains all three methods
+            .subscribe(
+                { i: Int -> println("RECEIVED: $i") }
+            ) { e: Throwable -> println("RECEIVED ERROR: $e") }
+
+    }
+
+    @Test
+    fun `doOn operators - doOnSubscribe and doOneDispose`() {
+        commonObservable
+            .doOnSubscribe { println("Subscribing!") }
+            .doOnDispose { println("Disposing!") }
+            .subscribe { println("Received: $it") }
+    }
+
+    @Test
+    // This method is contained in Singles and Maybe classes
+    fun `doOnSucces operator`() {
+        Observable.just(5, 3, 7, 10, 2, 14)
+            .reduce { total: Int, next: Int -> total + next }
+            .doOnSuccess { i: Int -> println("Emitting: $i") }
+            .subscribe { i: Int -> println("Received: $i") }
+    }
 }
