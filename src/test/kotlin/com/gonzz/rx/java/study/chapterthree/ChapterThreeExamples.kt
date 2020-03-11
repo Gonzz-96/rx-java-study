@@ -303,4 +303,63 @@ class ChapterThreeExamples {
             .contains(9563)
             .subscribe { s -> println("Received: $s") }
     }
+
+    // ********************
+    // Collection Operators
+    // ********************
+
+    @Test
+    //Straightforward
+    // You can give a capacityHint
+    // It can receive a custom implementation of ArrayList
+    fun `toList operator`() {
+        commonObservable.toList()
+            .subscribe { list -> println("Received: $list") }
+    }
+
+    @Test
+    // Same as toList() but sorted
+    fun `toSortedList operator`() {
+        Observable.just(6, 2, 5, 7, 1, 4, 9, 8, 3)
+            .toSortedList()
+            .subscribe { sortedList: List<Int> -> println("Received: $sortedList") }
+    }
+
+    @Test
+    // Straightforward
+    // It can receive another lambda containing
+    // a mapping function for the emitted elements
+    // It can receive a third lambda that returns
+    // a implementation of Map<K, V>
+    // If there is a key that maps multiple elements,
+    // the last emitted value will replace the others
+    fun `toMap operator`() {
+        commonObservable
+            .toMap(String::length)
+            .subscribe { map -> println("Received: $map") }
+    }
+
+    @Test
+    // If the replaced elements have to be preserved,
+    // the toMultiMap() operator is a better option
+    fun `toMultiMap operator`() {
+        commonObservable
+            .toMultimap(String::length)
+            .subscribe { map -> println("Received: $map") }
+    }
+
+    @Test
+    // only Map and List are available to collect the elements
+    // But collect() elements gives the possibility to use
+    // another type
+    // Two arguments are required: an 'initialValuSupplier',
+    // that received the object who will collect, and a 'collector'
+    // lambda, which is the function that handles every element
+    fun `collect operator`() {
+        commonObservable
+            .collect({ HashSet<String>() }) { container, element ->
+                container.add(element)
+            }
+            .subscribe { map -> println("Received: $map") }
+    }
 }
