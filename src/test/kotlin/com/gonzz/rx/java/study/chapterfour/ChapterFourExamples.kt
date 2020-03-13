@@ -90,6 +90,45 @@ class ChapterFourExamples {
         //keep alive for 3 seconds
         Thread.sleep(10_000)
     }
+
+    @Test
+    fun `flatMap operator`() {
+        firstCommonObservable
+            .flatMap { Observable.fromIterable(it.toList()) }
+            .subscribe(::println)
+    }
+
+    @Test
+    fun `flatMap operator II`() {
+        val source = Observable
+            .just(
+                "521934/2342/FOXTROT",
+                "21962/12112/78886/TANGO",
+                "283242/4542/WHISKEY/2348562"
+            )
+
+        source
+            .flatMap { s ->
+                Observable.fromIterable(s.split("/"))
+                    .filter { it.matches("[0-9]+".toRegex()) }
+            }
+            .map(Integer::valueOf)
+            .subscribe(::println)
+    }
+
+    @Test
+    fun `another flat map example`() {
+        val intervalArguments = Observable.just(2, 3, 10, 7)
+
+        intervalArguments
+            .flatMap { i ->
+                Observable.interval(i.toLong(), TimeUnit.SECONDS)
+                    .map { i.toString() + "s interval: " + ((i + 1) * i) + " elapsed" }
+            }
+            .subscribe(System.out::println)
+
+        Thread.sleep(12_000L)
+    }
 }
 
 
