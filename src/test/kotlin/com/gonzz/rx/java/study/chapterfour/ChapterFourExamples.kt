@@ -129,6 +129,15 @@ class ChapterFourExamples {
 
         Thread.sleep(12_000L)
     }
+
+    @Test
+    fun `flatMap overload variant`() {
+        firstCommonObservable
+            .flatMap({ Observable.fromIterable(it.toList()) }) { original, flatten ->
+                "$original-$flatten"
+            }
+            .subscribe(::println)
+    }
 }
 
 
