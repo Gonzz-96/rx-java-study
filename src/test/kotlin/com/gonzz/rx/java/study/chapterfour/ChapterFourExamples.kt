@@ -138,6 +138,44 @@ class ChapterFourExamples {
             }
             .subscribe(::println)
     }
+
+    @Test
+    // This will subscribe to observers sequentially.
+    // It won't fire the subscription of one observable
+    // if the first one has not called onComplete() method
+    // THis factory/operator iwll guarantee order
+    fun `concat factory`() {
+        Observable.concat(firstCommonObservable, secondCommonObservable)
+            .subscribe { println("Received: $it") }
+    }
+
+    @Test
+    fun `concatWith() operator`() {
+        firstCommonObservable.concatWith(secondCommonObservable)
+            .subscribe { println("Received: $it") }
+    }
+
+    @Test
+    // IMPORTANT NOTE: take() operator can make
+    // an endless observable, finite.
+    fun `using concat() with an endless observable`() {
+        // emits every second, but only 2 elements are taken (finite)
+        val source1 = Observable.interval(1, TimeUnit.SECONDS)
+            .take(2)
+            .map { l: Long -> l + 1 } // emit elapsed seconds
+            .map { l: Long -> "Source1: $l seconds" }
+
+        //emit every 300 milliseconds (infinite)
+        val source2 =
+            Observable.interval(300, TimeUnit.MILLISECONDS)
+                .map { l: Long -> (l + 1) * 300 } // emit elapsed milliseconds
+                .map { l: Long -> "Source2: $l milliseconds" }
+        Observable.concat(source1, source2)
+            .subscribe { i: String -> println("RECEIVED: $i") }
+
+        //keep application alive for 5 seconds
+        Thread.sleep(5000)
+    }
 }
 
 
