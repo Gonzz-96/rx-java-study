@@ -5,6 +5,7 @@ import io.reactivex.functions.BiFunction
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.time.LocalTime
 import java.util.concurrent.TimeUnit
 
 
@@ -258,7 +259,7 @@ class ChapterFourExamples {
     // Operator version of zip()
     fun `zipWith() operator`() {
 
-        val zipper = BiFunction<String, Int, String> { s, i ->
+        val zipper = BiFunction { s: String, i: Int ->
             "$s-$i"
         }
 
@@ -266,6 +267,24 @@ class ChapterFourExamples {
         val source2 = Observable.range(1, 6)
 
         source1.zipWith(source2, zipper)
+    }
+
+    @Test
+    fun `another zip() example`() {
+        val strings = Observable.just(
+            "Alpha", "Beta", "Gamma", "Delta",
+            "Epsilon"
+        )
+        val seconds = Observable.interval(1, TimeUnit.SECONDS)
+        Observable.zip(strings, seconds,
+            BiFunction { s: String, l: Long? -> s })
+            .subscribe { s: String ->
+                println(
+                    "Received " + s +
+                            " at " + LocalTime.now()
+                )
+            }
+        Thread.sleep(6_000L)
     }
 }
 
