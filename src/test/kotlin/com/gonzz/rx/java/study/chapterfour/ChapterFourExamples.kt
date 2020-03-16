@@ -241,8 +241,8 @@ class ChapterFourExamples {
     // This will combine the elements of the
     // received observables
     // IMPORTANT: in kotlin, the zip() operator
-    // need requires a mandatory BiFunction<T1, T2, R>
-    // argument
+    // requires a mandatory BiFunction<T1, T2, R>
+    // argument. Lambdas cannot be used!
     fun `zip() operator`() {
         val source1 = Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
         val source2 = Observable.range(1, 6)
@@ -252,6 +252,20 @@ class ChapterFourExamples {
                 "$s-$i"
             }
         ).subscribe { println("Received: $it") }
+    }
+
+    @Test
+    // Operator version of zip()
+    fun `zipWith() operator`() {
+
+        val zipper = BiFunction<String, Int, String> { s, i ->
+            "$s-$i"
+        }
+
+        val source1 = Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+        val source2 = Observable.range(1, 6)
+
+        source1.zipWith(source2, zipper)
     }
 }
 
