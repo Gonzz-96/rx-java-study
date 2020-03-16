@@ -1,12 +1,17 @@
 package com.gonzz.rx.java.study.chapterfive
 
 import io.reactivex.Observable
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.concurrent.fixedRateTimer
+import kotlin.random.Random
 
 @RunWith(JUnit4::class)
 class ChapterFiveExamples {
+
+    private val threeCommonInteger = Observable.range(1, 3)
 
     @Test
     fun `different streams for different observers`() {
@@ -28,5 +33,36 @@ class ChapterFiveExamples {
         threeInteger.subscribe { println("Observer 2: $it") }
 
         threeInteger.connect()
+    }
+
+    @Test
+    fun `multicasting with operators`() {
+        threeCommonInteger.map { Random.nextInt(1, 100_00) }.subscribe { println("Observer 1: $it") }
+        threeCommonInteger.map { Random.nextInt(1, 100_00) }.subscribe { println("Observer 2: $it") }
+    }
+
+    @Test
+    // here, the connectable.map() will create different streams
+    // for each observable. Every operator added to the ConnectableObservable
+    // will fork the single stream into different streams
+    fun `creating random numbers AFTER publishing the observable`() {
+        val connectable = threeCommonInteger.publish()
+        val threeRandomInts = connectable.map { Random.nextInt(1, 100_00) }
+
+        threeRandomInts.subscribe { println("Observer 1: $it") }
+        threeRandomInts.subscribe { println("Observer 2: $it") }
+
+        connectable.connect()
+    }
+
+    @Test
+    fun `applying map operator before publish() is called`() {
+        val connectable = threeCommonInteger.map { Random.nextInt(1, 100_00) }
+        val threeRandomInts = connectable.publish()
+
+        threeRandomInts.subscribe { println("Observer 1: $it") }
+        threeRandomInts.subscribe { println("Observer 2: $it") }
+
+        threeRandomInts.connect()
     }
 }
