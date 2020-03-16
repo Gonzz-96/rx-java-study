@@ -189,6 +189,53 @@ class ChapterFourExamples {
             Observable.fromIterable(it.toList())
         }.subscribe(::println)
     }
+
+    @Test
+    // amb() stands for Ambiguous. It will receive and
+    // Iterable<Observable<T>> and will emit the values of
+    // the "FASTEST" observable. THe others will be disposed.
+    // It's useful when there are a lot of data sources,
+    // and we want to send the fastest values
+    fun `amb() operator`() {
+        //emit every second
+        val source1 = Observable.interval(1, TimeUnit.SECONDS)
+            .take(2)
+            .map { l -> l + 1 } // emit elapsed seconds
+            .map { l -> "Source1: $l seconds" }
+
+        // This observable is faster, so its elements will be pushed
+        // down to the final stream.
+        val source2 = Observable.interval(300L, TimeUnit.MILLISECONDS)
+            .map { l -> (l + 1) * 300 }
+            .map { l -> "Source 2: $l" }
+
+        Observable.amb(listOf(source1, source2))
+            .subscribe { println("Received: $it") }
+
+        Thread.sleep(5_000L)
+    }
+
+    @Test
+    // ambWith() it's the operator version of amb()
+    fun `ambWith() operator`() {
+        //emit every second
+        val source1 = Observable.interval(1, TimeUnit.SECONDS)
+            .take(2)
+            .map { l -> l + 1 } // emit elapsed seconds
+            .map { l -> "Source1: $l seconds" }
+
+        // This observable is faster, so its elements will be pushed
+        // down to the final stream.
+        val source2 = Observable.interval(300L, TimeUnit.MILLISECONDS)
+            .map { l -> (l + 1) * 300 }
+            .map { l -> "Source 2: $l" }
+
+        source1.ambWith(source2)
+            .subscribe { println("Received: $it") }
+
+        Thread.sleep(5_000L)
+    }
+
 }
 
 
