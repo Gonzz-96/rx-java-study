@@ -286,6 +286,21 @@ class ChapterFourExamples {
             }
         Thread.sleep(6_000L)
     }
+
+    @Test
+    // This will take 2 observables and pair the
+    // elements of one observable with the latest
+    // emitted element of the another observable.
+    fun `combineLatest() operator`() {
+        val source1 = Observable.interval(300L, TimeUnit.MILLISECONDS)
+        val source2 = Observable.interval(1L, TimeUnit.SECONDS)
+
+        Observable.combineLatest(source1, source2,
+            BiFunction { i1: Long, i2: Long -> "(Source 1: $i1, Source 2: $i2)" })
+            .subscribe(::println)
+
+        Thread.sleep(6_000L)
+    }
 }
 
 
