@@ -1,6 +1,7 @@
 package com.gonzz.rx.java.study.chapterfour
 
 import io.reactivex.Observable
+import io.reactivex.functions.BiFunction
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -236,6 +237,22 @@ class ChapterFourExamples {
         Thread.sleep(5_000L)
     }
 
+    @Test
+    // This will combine the elements of the
+    // received observables
+    // IMPORTANT: in kotlin, the zip() operator
+    // need requires a mandatory BiFunction<T1, T2, R>
+    // argument
+    fun `zip() operator`() {
+        val source1 = Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+        val source2 = Observable.range(1, 6)
+
+        Observable.zip(source1, source2,
+            BiFunction<String, Int, String> { s, i ->
+                "$s-$i"
+            }
+        ).subscribe { println("Received: $it") }
+    }
 }
 
 
