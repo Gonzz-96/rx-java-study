@@ -312,4 +312,17 @@ class ChapterFourExamples {
 
             Thread.sleep(6_000L)
     }
+
+    @Test
+    fun `groupBy() operator`() {
+        firstCommonObservable.groupBy(String::length)
+            .flatMapSingle { group ->
+                group.reduce("") { seed, item ->
+                    if (seed == "") item else ", $item"
+                }.map { reducedString ->
+                    "${group.key} : $reducedString"
+                }
+            }.subscribe(::println)
+        }
+
 }
