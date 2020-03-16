@@ -80,4 +80,24 @@ class ChapterFiveExamples {
 
         connectable.connect()
     }
+
+    @Test
+    // This operator will receive an integer
+    // that represents the number of subscriptions
+    // the observable will receive. For example, if we have autoConnect(3),
+    // the observable will start emitting after 3 observers are subscribed to it
+    fun `autoConnect() operator`() {
+        val threeRandoms = threeCommonInteger
+            .map { randomInt() }
+            .publish()
+            .autoConnect(2) // With no parameters, only one observer is needed
+        // If 0 is received, it will start firing emissions from the very beginning
+
+        threeRandoms.subscribe { println("Observer 1: $it") }
+        threeRandoms.reduce(0) { acc, next ->
+            acc + next
+        }.subscribe { result -> println("Observer 2: Total sum: $result") }
+    }
+
+    private fun randomInt() = Random.nextInt(0, 100_00)
 }
