@@ -4,4 +4,6 @@ I created this series of notes while reading the book *Learning RxJava* by Thoma
 
 ### Index
 * **Chapter** 1: Thinking reactively
-* **Chapter** 2: Observables and Subscibers
+* **Chapter** 2: Observables and Subscribers
+* **Chapter** 3: Basic Operators
+* **Chapter** 4: Combining Observables
