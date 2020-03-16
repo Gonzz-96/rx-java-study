@@ -176,6 +176,19 @@ class ChapterFourExamples {
         //keep application alive for 5 seconds
         Thread.sleep(5000)
     }
+
+    @Test
+    // flatMap() doesn't care about observable order
+    // It subscribes to every observable simultaneously.
+    // concatMap() it's its counterpart: it CARES about order
+    // and works almost the same as concat() [it won't subscribe]
+    // to the next observable until the first source onComplete()
+    // method is called
+    fun `concatMap factory`() {
+        firstCommonObservable.concatMap {
+            Observable.fromIterable(it.toList())
+        }.subscribe(::println)
+    }
 }
 
 
