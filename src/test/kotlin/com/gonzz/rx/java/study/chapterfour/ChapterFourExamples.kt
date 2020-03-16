@@ -301,6 +301,15 @@ class ChapterFourExamples {
 
         Thread.sleep(6_000L)
     }
+
+    @Test
+    fun `withLatestFrom() operator`() {
+        val source1 = Observable.interval(300, TimeUnit.MILLISECONDS)
+        val source2 = Observable.interval(1, TimeUnit.SECONDS)
+        source2.withLatestFrom(source1,
+            BiFunction { l1: Long, l2: Long? -> "SOURCE 2: $l1, SOURCE 1: $l2"  })
+            .subscribe { x: String? -> println(x) }
+
+            Thread.sleep(6_000L)
+    }
 }
-
-
