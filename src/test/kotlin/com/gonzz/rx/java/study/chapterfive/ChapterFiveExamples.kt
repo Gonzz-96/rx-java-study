@@ -65,4 +65,19 @@ class ChapterFiveExamples {
 
         threeRandomInts.connect()
     }
+
+    // An observabe should be only published when there
+    // are more than one observer. Otherwise, there could be
+    // CPU and memory overhead
+    @Test
+    fun `multiple observers subscribing to one ConnectableObservable`() {
+        val connectable = threeCommonInteger.map { Random.nextInt(1, 100_00) }.publish()
+
+        connectable.subscribe { println("Observer 1: $it") }
+        connectable.reduce(0) { acc, next ->
+            acc + next
+        }.subscribe { result -> println("Observer 2: $result") }
+
+        connectable.connect()
+    }
 }
