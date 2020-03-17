@@ -1,12 +1,12 @@
 package com.gonzz.rx.java.study.chapterfive
 
 import io.reactivex.Observable
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.concurrent.fixedRateTimer
+import java.util.concurrent.TimeUnit
 import kotlin.random.Random
+
 
 @RunWith(JUnit4::class)
 class ChapterFiveExamples {
@@ -86,6 +86,7 @@ class ChapterFiveExamples {
     // that represents the number of subscriptions
     // the observable will receive. For example, if we have autoConnect(3),
     // the observable will start emitting after 3 observers are subscribed to it
+    // When there are no observers available, it won't dispose itself.
     fun `autoConnect() operator`() {
         val threeRandoms = threeCommonInteger
             .map { randomInt() }
@@ -97,6 +98,62 @@ class ChapterFiveExamples {
         threeRandoms.reduce(0) { acc, next ->
             acc + next
         }.subscribe { result -> println("Observer 2: Total sum: $result") }
+    }
+
+    // !!!!!!!!!!!!!!!!!!!!!! Importat !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // NOTE: autoConnect() and refCount() doesn't represent the maximum number
+    // of allowerd subscriber, but the quantity of subscriptions it needs
+    // to start emitting values
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    @Test
+    // This operator is similar to autoConnect(),
+    // but it will be disposed when there is no more available observers
+    // It doesn't persist the subscription.
+    // In short, it can start over!
+    fun `refCount() oeprator`() {
+        val seconds = Observable.interval(1, TimeUnit.SECONDS)
+            .publish()
+            .refCount()
+
+        seconds.take(5)
+            .subscribe { println("Observer 1: $it") }
+
+        Thread.sleep(3_000L)
+
+        seconds.take(2)
+            .subscribe { println("Observer 2: $it") }
+
+        Thread.sleep(3000) // In this points, 'seconds' has no more observers, ConnectableObservable is disposed
+
+        seconds.take(2)
+            .subscribe { println("Observer 3: $it") }
+
+        Thread.sleep(3_000L)
+    }
+
+    @Test
+    // This operator is a fusion between publish().refCount()
+    fun `share() oeprator`() {
+        val seconds = Observable.interval(1, TimeUnit.SECONDS)
+            //.publish()
+            //.refCount()
+            .share()
+
+        seconds.take(5)
+            .subscribe { println("Observer 1: $it") }
+
+        Thread.sleep(3_000L)
+
+        seconds.take(2)
+            .subscribe { println("Observer 2: $it") }
+
+        Thread.sleep(3000) // In this points, 'seconds' has no more observers, ConnectableObservable is disposed
+
+        seconds.take(2)
+            .subscribe { println("Observer 3: $it") }
+
+        Thread.sleep(3_000L)
     }
 
     private fun randomInt() = Random.nextInt(0, 100_00)
