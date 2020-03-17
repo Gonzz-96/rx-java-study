@@ -156,5 +156,52 @@ class ChapterFiveExamples {
         Thread.sleep(3_000L)
     }
 
+    @Test
+    // replay() can receive a parameter, which corresponds
+    // to the buffer size, and will cache the latest elements
+    fun `replay() operator`() {
+        val seconds = Observable.interval(1, TimeUnit.SECONDS)
+            //.replay()
+            .replay(2)
+            .autoConnect()
+
+        //Observer 1
+        seconds.subscribe { println("Received I: $it") }
+
+        Thread.sleep(3_000L)
+
+        // Observer 2
+        seconds.subscribe { println("Received II: $it") }
+
+        Thread.sleep(3_000L)
+    }
+
+    @Test
+    fun `to persist the emissions, use autoConnect() instead of refCount() since it's not disposed`() {
+        val source = Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+            .replay(1)
+            .autoConnect()
+
+        source.subscribe { println("Observer 1: $it") }
+        source.subscribe { println("Observer 2: $it") }
+
+    }
+
+    @Test
+    fun `replay() operator overload`() {
+        val seconds = Observable.interval(300, TimeUnit.MILLISECONDS)
+            .map { (it + 1) * 300 } // map to elapsed milliseconds
+            .replay(1, TimeUnit.SECONDS)
+            .autoConnect()
+
+        seconds.subscribe { println("Observer 1: $it") }
+
+        Thread.sleep(2_000L)
+
+        seconds.subscribe { println("Observer 2: $it") }
+
+        Thread.sleep(1_000L)
+    }
+
     private fun randomInt() = Random.nextInt(0, 100_00)
 }
