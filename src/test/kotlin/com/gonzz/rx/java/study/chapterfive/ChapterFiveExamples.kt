@@ -1,10 +1,7 @@
 package com.gonzz.rx.java.study.chapterfive
 
 import io.reactivex.Observable
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.ReplaySubject
-import io.reactivex.subjects.Subject
+import io.reactivex.subjects.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -328,5 +325,33 @@ class ChapterFiveExamples {
         subject.onNext("Gamma")
 
         subject.subscribe { println("Observer 2: $it") }
+    }
+
+    @Test
+    // The AsyncSubject has a highly tailored, finite-specific behavior:
+    // it will only push the last value it receives,
+    // followed by an onComplete() event
+    // This Subject is not ideal for infinite sources
+    // since onComplete() is never called
+    // AsyncSubject behavior can be imitate with takeLast(1).replay(1)
+    fun `Async Subject example`() {
+        val subject: Subject<String> = AsyncSubject.create()
+
+        subject.subscribe(
+            { s: String -> println("Observer 1: $s") },
+            { obj: Throwable -> obj.printStackTrace() },
+            { println("Observer 1 done!") } )
+
+        subject.onNext("Alpha")
+        subject.onNext("Beta")
+
+        // This is the only emitted value
+        subject.onNext("Gamma")
+        subject.onComplete()
+
+        subject.subscribe(
+            { println("Observer 2: $it") },
+            Throwable::printStackTrace,
+            { println("Observer 2 done!") } )
     }
 }
