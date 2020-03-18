@@ -2,6 +2,7 @@ package com.gonzz.rx.java.study.chapterfive
 
 import io.reactivex.Observable
 import io.reactivex.subjects.*
+import io.reactivex.subjects.UnicastSubject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -353,5 +354,24 @@ class ChapterFiveExamples {
             { println("Observer 2: $it") },
             Throwable::printStackTrace,
             { println("Observer 2 done!") } )
+    }
+
+    @Test
+    // It will buffer all the emissions it received until
+    // an observer subscribes to it, and then it will
+    // release all these emissions to the Observer and
+    // clear its cache
+    fun `Unicast Subject example`() {
+        val subject: Subject<String> = UnicastSubject.create()
+
+        Observable.interval(300, TimeUnit.MILLISECONDS)
+            .map { l: Long -> ((l + 1) * 300).toString() + " milliseconds" }
+            .subscribe(subject)
+
+        Thread.sleep(2000L)
+
+        subject.subscribe { println("Observer 1: $it") }
+
+        Thread.sleep(2_000L)
     }
 }
