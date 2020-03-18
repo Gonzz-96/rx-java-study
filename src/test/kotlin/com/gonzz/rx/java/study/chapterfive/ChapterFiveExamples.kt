@@ -1,6 +1,7 @@
 package com.gonzz.rx.java.study.chapterfive
 
 import io.reactivex.Observable
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import org.junit.Test
@@ -295,5 +296,21 @@ class ChapterFiveExamples {
                 .create<String>()
                 .toSerialized()
 
+    }
+
+    @Test
+    // BehaviorSubject will cache the last element of the Subject
+    // This is equivalent to replay(1).autoConnect()
+    fun `Behavior Subject example`() {
+
+        val subject: Subject<String> = BehaviorSubject.create()
+
+        subject.subscribe { println("Observer 1: $it") }
+
+        subject.onNext("Alpha")
+        subject.onNext("Beta")
+        subject.onNext("Gamma")
+
+        subject.subscribe { println("Observer 2: $it") }
     }
 }
