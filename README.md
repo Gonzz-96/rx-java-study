@@ -7,3 +7,4 @@ I created this series of notes while reading the book *Learning RxJava* by Thoma
 * **Chapter** 2: Observables and Subscribers
 * **Chapter** 3: Basic Operators
 * **Chapter** 4: Combining Observables
+* **Chapter** 5: Multicasting, Replaying and Caching
