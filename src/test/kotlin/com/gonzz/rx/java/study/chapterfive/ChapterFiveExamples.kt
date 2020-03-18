@@ -1,6 +1,8 @@
 package com.gonzz.rx.java.study.chapterfive
 
 import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -230,4 +232,68 @@ class ChapterFiveExamples {
     }
 
     private fun randomInt() = Random.nextInt(0, 100_00)
+
+    @Test
+    fun `PublishSubjects are Observers and Observables at the same time`() {
+        val subject: Subject<String> = PublishSubject.create()
+
+        subject
+            .map(String::length)
+            .subscribe(::println)
+
+        subject.onNext("Alpha")
+        subject.onNext("Beta")
+        subject.onNext("Gamma")
+        subject.onComplete()
+    }
+
+    @Test
+    // This means that you will most likely use Subjects for infinite,
+    // event-driven (that is, user action-driven) Observables.
+    fun `when to use Subjects`() {
+        val source1 = Observable.interval(1, TimeUnit.SECONDS)
+            .map { l: Long -> (l + 1).toString() + " seconds" }
+        val source2 =
+            Observable.interval(300, TimeUnit.MILLISECONDS)
+                .map { l: Long -> ((l + 1) * 300).toString() + " milliseconds" }
+
+        val subject: Subject<String> = PublishSubject.create()
+
+        subject.subscribe { x: String? -> println(x) }
+
+        source1.subscribe(subject)
+        source2.subscribe(subject)
+
+        Thread.sleep(5_000L)
+    }
+
+    @Test
+    // Subjects are hot observable, so its emissions
+    // can be missed if there are no observers available
+    fun `Subjects are hot observables`() {
+        val subject: Subject<String> = PublishSubject.create()
+
+        subject.onNext("Alpha")
+        subject.onNext("Beta")
+        subject.onNext("Gamma")
+        subject.onComplete()
+
+        // This observer lost all of the emissions
+        subject.map { obj: String -> obj.length }
+            .subscribe { x: Int? -> println(x) }
+    }
+
+    // IMPORTANT: subjects are no disposable!! No dispose() method available
+
+    @Test
+    // MEthods in a subject are no thredsafe, so they can be called
+    // from multiple threads, breaking the sequential contract of the observables
+    // The toSerialized() is the solution to this
+    fun `toSerialize() method on subjects`() {
+        val subject: Subject<String> =
+            PublishSubject
+                .create<String>()
+                .toSerialized()
+
+    }
 }
