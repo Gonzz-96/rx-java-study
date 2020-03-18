@@ -203,5 +203,31 @@ class ChapterFiveExamples {
         Thread.sleep(1_000L)
     }
 
+    @Test
+    fun `cache() operator`() {
+        val cachedRollingTotals =
+            Observable.just(6, 2, 5, 7, 1, 4, 9, 8, 3)
+                .scan(0,
+                    { total, next -> total + next }
+                )
+                .cache()
+
+        cachedRollingTotals.subscribe(::println)
+    }
+
+    @Test
+    // This operator is equivalent to cache(),
+    // cacheWithInitialCapacity(16) == cache()
+    fun `cacheWithInitialCapacity() operator`() {
+        val cachedRollingTotals =
+            Observable.just(6, 2, 5, 7, 1, 4, 9, 8, 3)
+                .scan(0,
+                    { total, next -> total + next }
+                )
+                .cacheWithInitialCapacity(9)
+
+        cachedRollingTotals.subscribe(::println)
+    }
+
     private fun randomInt() = Random.nextInt(0, 100_00)
 }
