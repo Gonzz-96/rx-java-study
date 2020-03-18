@@ -3,6 +3,7 @@ package com.gonzz.rx.java.study.chapterfive
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.ReplaySubject
 import io.reactivex.subjects.Subject
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -304,6 +305,21 @@ class ChapterFiveExamples {
     fun `Behavior Subject example`() {
 
         val subject: Subject<String> = BehaviorSubject.create()
+
+        subject.subscribe { println("Observer 1: $it") }
+
+        subject.onNext("Alpha")
+        subject.onNext("Beta")
+        subject.onNext("Gamma")
+
+        subject.subscribe { println("Observer 2: $it") }
+    }
+
+    @Test
+    // ReplaySubject will cache all of the emissions of the
+    // subject
+    fun `Replay Subject example`() {
+        val subject: Subject<String> = ReplaySubject.create()
 
         subject.subscribe { println("Observer 1: $it") }
 
